@@ -82,6 +82,7 @@ interface Example {
   chinese: string;
 }
 ```
+```
 
 ### 5.2 模型调用规范
 - **默认模型**：使用 `deepseek-v4-flash`。
