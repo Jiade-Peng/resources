@@ -31,4 +31,29 @@ https://github.com/VoltAgent/awesome-design-md/tree/main
 - 渲染进程禁止直接访问 Node.js 或 Electron 原生模块
 - 大计算/文件操作放在主进程，通过 invoke/handle 调用
 - 窗口创建使用 BrowserWindow 的 backgroundColor 属性避免白屏闪烁
+
+## 目录设计
+my-electron-app/
+├── electron/
+│   ├── main.ts          # 主进程（窗口创建、菜单、IPC 处理）
+│   ├── preload.ts       # 预加载脚本（暴露安全 API）
+│   └── tsconfig.json
+├── renderer/
+│   ├── index.html
+│   ├── src/
+│   │   ├── main.tsx     # React 入口
+│   │   ├── App.tsx      # 根组件
+│   │   ├── components/  # Shadcn 组件（已安装的）
+│   │   ├── lib/         # utils.ts (cn 函数)
+│   │   └── styles/      # globals.css (含 Tailwind)
+│   └── tsconfig.json
+├── tailwind.config.js
+├── postcss.config.js
+├── components.json      # Shadcn 配置
+└── electron-vite.config.ts
+├── shared/            
+│   └── ipc-channels.ts # 统一存放 IPC 通道名和公共 Type
+├── tailwind.config.ts  # 建议改为 .ts 以匹配规范
+├── electron-vite.config.ts
+└── ...
 ```
