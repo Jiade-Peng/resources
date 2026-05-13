@@ -129,12 +129,12 @@ interface Example {
 
 # 分阶段分任务执行
 
-## 第一阶段：脚手架与目录初始化
+## 第1阶段：脚手架与目录初始化
 ```md
 根据 @AI_CONTEXT.md 的目录结构要求，@DESIGN.md的设计要求，使用 electron-vite 创建项目基础脚手架。确保 electron/、renderer/ 和 shared/ 目录正确，并配置好 Tailwind CSS 和 TypeScript。
 ```
 
-## 第二阶段：核心 UI 组件（Shadcn/ui + Tailwind）
+## 第2阶段：核心 UI 组件（Shadcn/ui + Tailwind）
 ```md
 参考 @AI_CONTEXT.md 中的产品设计规范，实现单词详情页的 React 组件。
 
@@ -144,17 +144,17 @@ interface Example {
 加入 @framer-motion 动效约定中的入场和切换动画。
 ```
 
-## 第三阶段：IPC 桥接与安全通信
+## 第3阶段：IPC 桥接与安全通信
 ```md
 根据 @AI_CONTEXT.md 的安全规范，在 shared/ipc-channels.ts 中定义查词、OCR 和语音识别的通道名。然后在 preload.ts 中通过 contextBridge 暴露对应的 API 接口。严禁在渲染进程直接调用 Node.js 模块。”\
 ```
 
-## 第四阶段：功能集成（OCR 与 STT）
+## 第4阶段：功能集成（OCR 与 STT）
 ```md
 在主进程 main.ts 中实现 OCR 处理逻辑。当收到渲染进程的图片数据时，进行模拟处理并返回结果。注意遵守‘大计算放在主进程’的规范。
 ```
 
-## 第五阶段：数据集成
+## 第5阶段：数据集成
 ```md
 请遵循 @AI_CONTEXT.md 的技术规范和产品设计要求，参考 @DESIGN.md 的视觉风格，使用 @EXAMPLE.md 中的 taxonomy 数据作为默认状态，实现单词详情页的核心渲染逻辑。
 
@@ -165,7 +165,7 @@ interface Example {
 视觉细节：为不同释义自动分配规范中定义的柔和背景色块，音标旁放置 Lucide 发音图标。
 代码质量：严格禁止修改 ui/ 源码，必须在 components/business 或 components/word 下创建该详情页组件。
 ```
-## 第六阶段：启动服务
+## 第6阶段：启动服务
 ```md
 请基于 @AI_CONTEXT.md 的目录设计和技术规范，为本项目生成一个专用的启动脚本 run.sh。
 
