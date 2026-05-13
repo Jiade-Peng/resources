@@ -57,6 +57,35 @@ my-electron-app/
 ├── electron-vite.config.ts
 └── ...
 
+## 5. 数据架构与 API 契约
+
+### 5.1 单词对象模型 (Word Object Schema)
+所有的词典查询结果必须遵循以下数据结构：
+
+typescript
+interface WordData {
+  word: string;
+  phonetic: {
+    uk: string; // 英式音标
+    us: string; // 美式音标
+  };
+  part_of_speech: string;
+  definition: string; // 核心释义
+  // 对应产品规范中的“释义即 Tab”逻辑，如果是多释义，建议使用数组
+  definitions?: Array<{
+    sense: string;
+    simple_examples: Example[];
+    complex_examples: Example[];
+  }>;
+  simple_examples: Example[]; // 简单例句（优先展示）
+  complex_examples: Example[]; // 长难例句（后置展示）
+}
+
+interface Example {
+  english: string;
+  chinese: string;
+}
+```
 # 产品设计规范 (Product Design Specification)
 
 ## 1. 核心理念
