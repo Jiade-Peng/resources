@@ -14,7 +14,7 @@ https://github.com/VoltAgent/awesome-design-md/tree/main
 ## 1. 基础
 - **架构方案**：桌面应用，使用 Electron + React (Vite 构建)。
 - **样式处理**：Tailwind CSS，主题定义于 `tailwind.config.ts`。
-- **组件规范**：Shadcn/ui（组件源码位于 `src/components/ui`），严禁直接修改内部实现，需通过包装组件进行业务扩展 <sub index="1" url="https://baizhi958216.github.io/AllDocs/Frontend/shadcnui" title="使用shadcn-ui进行开发 - 纸儿" snippet=""></sub>。
+- **组件规范**：Shadcn/ui（组件源码位于 `src/components/ui`），严禁直接修改内部实现，需通过包装组件进行业务扩展。
 - **图标动效**：使用 `lucide-react`（备选 `@heroicons/react`）及 `framer-motion`。
 
 ## 2. 动效约定
