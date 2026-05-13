@@ -180,7 +180,7 @@ Information is missing on the specific encryption algorithm for local credential
 ## 第7阶段：集成AI
 ```md
 任务描述：
-请遵循 @AI_CONTEXT.md 的规范，实现单词搜索功能。该功能需要打通从渲染进程输入到主进程调用 DeepSeek API 的全链路。
+请遵循 @AI_CONTEXT.md 的规范，实现单词查询功能。该功能需要打通从渲染进程输入到主进程调用 DeepSeek API 的全链路。
 
 具体要求：
 
