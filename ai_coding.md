@@ -92,3 +92,30 @@ my-electron-app/
 *   **数据流**：所有 IPC 通道名称必须严格定义在 `shared/ipc-channels.ts` 中。
 
 ```
+
+# 分阶段分任务执行
+
+## 第一阶段：脚手架与目录初始化
+```md
+根据 @AI_CONTEXT.md 的目录结构要求，@DESIGN.md的设计要求，使用 electron-vite 创建项目基础脚手架。确保 electron/、renderer/ 和 shared/ 目录正确，并配置好 Tailwind CSS 和 TypeScript。
+```
+
+## 第二阶段：核心 UI 组件（Shadcn/ui + Tailwind）
+```md
+参考 @AI_CONTEXT.md 中的产品设计规范，实现单词详情页的 React 组件。
+
+使用 Shadcn/ui 作为基础。
+实现‘释义块即 Tab’的逻辑，支持点击切换例句。
+按照规范中的‘配色方案’为不同释义分配背景色。
+加入 @framer-motion 动效约定中的入场和切换动画。
+```
+
+## 第三阶段：IPC 桥接与安全通信
+```md
+根据 @AI_CONTEXT.md 的安全规范，在 shared/ipc-channels.ts 中定义查词、OCR 和语音识别的通道名。然后在 preload.ts 中通过 contextBridge 暴露对应的 API 接口。严禁在渲染进程直接调用 Node.js 模块。”\
+```
+
+## 第四阶段：功能集成（OCR 与 STT）
+```md
+在主进程 main.ts 中实现 OCR 处理逻辑。当收到渲染进程的图片数据时，进行模拟处理并返回结果。注意遵守‘大计算放在主进程’的规范。
+```
