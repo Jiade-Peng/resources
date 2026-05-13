@@ -21,6 +21,15 @@
     - **开发环境**：使用 `.env` 文件存储，由主进程通过 `process.env` 读取。
     - **生产环境**：使用加密的本地存储（如 `electron-store` 加密模式）或系统级钥匙串（keychain/credential vault）管理密钥。
 - **体验优化**：配置 `BrowserWindow` 的 `backgroundColor` 以消除白屏闪烁。
+- **数据持久化规范**：
+    - **存储引擎**：统一使用 `SQLite` (`better-sqlite3`) 存储单词数据。数据库仅由主进程管理，严禁渲染进程直接操作文件系统以确保架构安全。
+    - **查询策略**：遵循“本地优先”原则。查询时主进程先检索数据库，命中则返回；未命中则调用 DeepSeek API，并在返回前异步写入缓存。
+    - **表结构约定**：
+        - **`words` 表**：存储单词、音标（JSON 字符串）、主释义及 `updated_at` 时间戳。
+        - **`definitions_cache` 表**：通过外键关联单词，存储详细义项、例句数组（JSON）及其绑定的 `theme_color`。
+    - **视觉联动**：存储时必须绑定色系标识，确保渲染时例句关键词颜色与释义卡片背景色系强一致。
+
+Information is missing on the specific encryption algorithm for local credential storage and automated database migration tools.
 
 ## 4. 目录设计
 ```text
@@ -76,7 +85,11 @@ interface Example {
 - **默认模型**：使用 `deepseek-v4-flash`。
 - **调用流**：渲染进程发出查询请求 -> 主进程从安全环境读取 API Key -> 主进程发起 HTTPS 请求 -> 主进程格式化数据并返回。
 
-```
+### 5.3 本地缓存契约 (Local Cache Schema)
+- **存储键名**：`word_cache`
+- **单条记录结构**：`{ [word: string]: WordData & { timestamp: number } }`
+- **清理机制**： 定义缓存有效期为3个月，缓存最大条数为2000条，避免存储文件过大。
+
 # 产品设计规范 (Product Design Specification)
 
 ## 1. 核心理念
