@@ -185,7 +185,7 @@ Information is missing on the specific encryption algorithm for local credential
 具体要求：
 
 前端 UI (Renderer)：
-在主页中心实现一个基于 Shadcn/ui 的搜索组件，包含 Input 和 Button。
+在主页中心实现一个基于 Shadcn/ui 的查询组件，包含 Input 和 Button。
 使用 framer-motion 实现搜索框的聚焦动效，并在查询时展示平滑的 Loading 状态。
 IPC 通道 (Shared)：
 在 shared/ipc-channels.ts 中新增 SEARCH_WORD 通道名称。
