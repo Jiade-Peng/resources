@@ -29,8 +29,6 @@
         - **`definitions_cache` 表**：通过外键关联单词，存储详细义项、例句数组（JSON）及其绑定的 `theme_color`。
     - **视觉联动**：存储时必须绑定色系标识，确保渲染时例句关键词颜色与释义卡片背景色系强一致。
 
-Information is missing on the specific encryption algorithm for local credential storage and automated database migration tools.
-
 ## 4. 目录设计
 ```text
 my-electron-app/
