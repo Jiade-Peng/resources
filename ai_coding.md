@@ -12,57 +12,53 @@ https://github.com/VoltAgent/awesome-design-md/tree/main
 # 项目技术规范
 
 ## 1. 基础
-- 桌面应用，使用 Electron + React (Vite 构建)
-- 样式：Tailwind CSS，主题定义在 tailwind.config.ts
-- 组件库：Shadcn/ui（组件源码在 src/components/ui），不要直接修改内部实现，通过包装组件扩展
-- 图标：lucide-react，若缺少则使用 @heroicons/react
-- 动效：framer-motion
+- **架构方案**：桌面应用，使用 Electron + React (Vite 构建)。
+- **样式处理**：Tailwind CSS，主题定义于 `tailwind.config.ts`。
+- **组件规范**：Shadcn/ui（组件源码位于 `src/components/ui`），严禁直接修改内部实现，需通过包装组件进行业务扩展 <sub index="1" url="https://baizhi958216.github.io/AllDocs/Frontend/shadcnui" title="使用shadcn-ui进行开发 - 纸儿" snippet=""></sub>。
+- **图标动效**：使用 `lucide-react`（备选 `@heroicons/react`）及 `framer-motion`。
 
 ## 2. 动效约定
-- 页面路由切换：AnimatePresence + motion.div，使用 opacity + y 偏移，时长 0.2s ease-out
-- 悬浮/点击反馈：whileHover={{ scale: 1.02 }}, whileTap={{ scale: 0.98 }}
-- 列表项入场：使用 staggerChildren，delay 0.05s
-- 避免在动画中使用 width/height 变化，统一使用 transform
+- **页面切换**：`AnimatePresence` + `motion.div`，使用 opacity + y 偏移，时长 0.2s ease-out。
+- **交互反馈**：悬浮 `whileHover={{ scale: 1.02 }}`，点击 `whileTap={{ scale: 0.98 }}`。
+- **列表入场**：使用 `staggerChildren`，延迟间隔 0.05s。
+- **性能优化**：动画统一使用 `transform`，严禁使用 width/height 属性以避免回流。
 
 ## 3. Electron 安全与性能（必须严格遵守）
-- 启用 contextIsolation，禁用 nodeIntegration
-- 使用 preload 脚本通过 contextBridge 暴露安全 API
-- 所有 IPC 通道名称定义在 shared/ipc-channels.ts
-- 渲染进程禁止直接访问 Node.js 或 Electron 原生模块
-- 大计算/文件操作放在主进程，通过 invoke/handle 调用
-- 窗口创建使用 BrowserWindow 的 backgroundColor 属性避免白屏闪烁
+- **沙箱隔离**：启用 `contextIsolation`，禁用 `nodeIntegration`。
+- **通信机制**：使用 preload 脚本通过 `contextBridge` 暴露安全 API，所有 IPC 通道名称定义在 `shared/ipc-channels.ts`。
+- **计算分离**：渲染进程禁止直接访问原生模块，大计算、文件操作及 **API 请求** 必须放在主进程 。
+- **敏感信息管理**：
+    - **严禁泄漏**：API Key 等敏感凭证严禁出现在渲染进程代码或前端环境变量中 。
+    - **开发环境**：使用 `.env` 文件存储，由主进程通过 `process.env` 读取。
+    - **生产环境**：使用加密的本地存储（如 `electron-store` 加密模式）或系统级钥匙串（keychain/credential vault）管理密钥。
+- **体验优化**：配置 `BrowserWindow` 的 `backgroundColor` 以消除白屏闪烁。
 
 ## 4. 目录设计
+```text
 my-electron-app/
 ├── electron/
-│   ├── main.ts          # 主进程（窗口创建、菜单、IPC 处理）
-│   ├── preload.ts       # 预加载脚本（暴露安全 API）
+│   ├── main.ts          # 主进程（处理 API 调用、安全存储、窗口管理）
+│   ├── preload.ts       # 预加载脚本（安全 API 桥接）
 │   └── tsconfig.json
 ├── renderer/
-│   ├── index.html
 │   ├── src/
-│   │   ├── main.tsx     # React 入口
-│   │   ├── App.tsx      # 根组件
-│   │   ├── components/  # Shadcn 组件（已安装的）
-│   │   ├── lib/         # utils.ts (cn 函数)
-│   │   └── styles/      # globals.css (含 Tailwind)
-│   └── tsconfig.json
-├── tailwind.config.js
-├── postcss.config.js
-├── components.json      # Shadcn 配置
-└── electron-vite.config.ts
+│   │   ├── components/  # 业务组件与封装后的 UI 组件
+│   │   ├── styles/      # Tailwind 全局样式
+│   │   └── ...
 ├── shared/            
-│   └── ipc-channels.ts # 统一存放 IPC 通道名和公共 Type
-├── tailwind.config.ts  # 建议改为 .ts 以匹配规范
-├── electron-vite.config.ts
-└── ...
+│   └── ipc-channels.ts  # IPC 通道名及公共类型
+├── .env                 # 环境变量（仅限开发环境存放 API Key）
+├── components.json      # Shadcn 配置 
+├── tailwind.config.ts   
+└── electron-vite.config.ts
+```
 
 ## 5. 数据架构与 API 契约
 
 ### 5.1 单词对象模型 (Word Object Schema)
-所有的词典查询结果必须遵循以下数据结构：
+查询结果必须遵循以下 TypeScript 定义，主进程返回的数据需完成格式校验。
 
-typescript
+```typescript
 interface WordData {
   word: string;
   phonetic: {
@@ -71,7 +67,7 @@ interface WordData {
   };
   part_of_speech: string;
   definition: string; // 核心释义
-  // 对应产品规范中的“释义即 Tab”逻辑，如果是多释义，建议使用数组
+  // 释义 Tab 逻辑，支持多义项
   definitions?: Array<{
     sense: string;
     simple_examples: Example[];
@@ -85,6 +81,13 @@ interface Example {
   english: string;
   chinese: string;
 }
+```
+
+### 5.2 模型调用规范
+- **默认模型**：使用 `deepseek-v4-flash`。
+- **调用流**：渲染进程发出查询请求 -> 主进程从安全环境读取 API Key -> 主进程发起 HTTPS 请求 -> 主进程格式化数据并返回。
+
+Information is missing on the specific encryption algorithm for local credential storage in production.
 ```
 # 产品设计规范 (Product Design Specification)
 
@@ -171,4 +174,28 @@ interface Example {
 安全逻辑：确保脚本执行过程中符合项目定义的 Electron 安全规范（如预加载脚本路径正确加载） 2。
 交互体验：脚本需包含清晰的彩色日志输出，能够区分显示主进程与渲染进程的启动状态，并在检测到错误时提供明确的退出码。
 权限处理：在生成说明中提醒如何赋予脚本执行权限（chmod +x run.sh）。
+```
+
+## 第7阶段：集成AI
+```md
+任务描述：
+请遵循 @AI_CONTEXT.md 的规范，实现单词搜索功能。该功能需要打通从渲染进程输入到主进程调用 DeepSeek API 的全链路。
+
+具体要求：
+
+前端 UI (Renderer)：
+在主页中心实现一个基于 Shadcn/ui 的搜索组件，包含 Input 和 Button。
+使用 framer-motion 实现搜索框的聚焦动效，并在查询时展示平滑的 Loading 状态。
+IPC 通道 (Shared)：
+在 shared/ipc-channels.ts 中新增 SEARCH_WORD 通道名称。
+主进程逻辑 (Main)：
+在 electron/main.ts（或对应的 service 文件）中实现查询处理器。
+逻辑流：先检查本地缓存（占位实现），若无缓存则调用 DeepSeek API。
+API 集成：使用 deepseek-v4-flash 模型，通过 System Prompt 强制其返回符合 @EXAMPLE.md 结构的 JSON 数据。
+安全性与性能：
+API Key 等敏感信息需从环境变量读取，严禁暴露在渲染进程。
+遵守“大计算放在主进程”原则，渲染进程仅负责发送单词并接收最终 JSON 结果。
+约束条件：
+
+严禁修改 components/ui 源码，UI 交互需符合产品规范中的极简风格。
 ```
