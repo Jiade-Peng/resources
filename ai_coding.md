@@ -88,7 +88,6 @@ interface Example {
 - **默认模型**：使用 `deepseek-v4-flash`。
 - **调用流**：渲染进程发出查询请求 -> 主进程从安全环境读取 API Key -> 主进程发起 HTTPS 请求 -> 主进程格式化数据并返回。
 
-Information is missing on the specific encryption algorithm for local credential storage in production.
 ```
 # 产品设计规范 (Product Design Specification)
 
