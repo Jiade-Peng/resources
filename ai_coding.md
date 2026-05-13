@@ -91,5 +91,4 @@ my-electron-app/
 *   **主进程**：处理 OCR 图像识别、语音流数据处理以及持久化生词本的存储。
 *   **数据流**：所有 IPC 通道名称必须严格定义在 `shared/ipc-channels.ts` 中。
 
-Information is missing on: 具体的 OCR 与 STT 第三方服务商选择，以及释义背景色块的具体色值定义。
 ```
