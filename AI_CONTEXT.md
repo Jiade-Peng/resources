@@ -64,13 +64,11 @@ interface WordData {
   part_of_speech: string;
   definition: string; // 核心释义
   // 释义 Tab 逻辑，支持多义项
-  definitions?: Array<{
-    sense: string;
+  definitions: Array<{
+    sense: string; // 核心释义
     simple_examples: Example[];
     complex_examples: Example[];
-  }>;
-  simple_examples: Example[]; // 简单例句（优先展示）
-  complex_examples: Example[]; // 长难例句（后置展示）
+  }>; // 哪怕只有一个释义，也必须封装在数组中，以适配 Tab 渲染逻辑
 }
 
 interface Example {
@@ -83,10 +81,9 @@ interface Example {
 - **默认模型**：使用 `deepseek-v4-flash`。
 - **调用流**：渲染进程发出查询请求 -> 主进程从安全环境读取 API Key -> 主进程发起 HTTPS 请求 -> 主进程格式化数据并返回。
 
-### 5.3 本地缓存契约 (Local Cache Schema)
-- **存储键名**：`word_cache`
-- **单条记录结构**：`{ [word: string]: WordData & { timestamp: number } }`
-- **清理机制**： 定义缓存有效期为3个月，缓存最大条数为2000条，避免存储文件过大。
+### 5.3 本地缓存契约 (Local Persistence)
+- **存储实现**：基于 SQLite 表结构，禁止存储为大 JSON 字符串。
+- **清理机制**：主进程启动时自动执行清理：删除 `updated_at` 超过 90 天的记录，或当总数超过 2000 条时，按时间顺序删除最旧的记录。
 
 # 产品设计规范 (Product Design Specification)
 
@@ -115,10 +112,13 @@ interface Example {
 *   **配色方案**：定义一套柔和的语义化色块映射表，用于自动分配给不同的释义块。
 *   **色块联动规范**：
     - 释义卡片与例句关键词需保持色系一致。
-    - 规则：例句中出现的关键词颜色需与当前激活的释义 Tab 背景色系匹配（例如：释义背景为 `bg-blue-50` 时，例句关键词使用 `text-blue-600`；背景为 `bg-green-50` 时，关键词使用 `text-green-600`）。
+    - 规则：例句中出现的关键词颜色需与当前激活的释义 Tab 背景色系匹配，可选色系限定为 `blue`, `emerald`, `violet`, `amber`, `rose`。
+    - 逻辑实现：义项索引 (index % 5) 对应配色池，确保 UI 色调柔和统一。
+    - 关键词动态渲染规则：例句展示严禁存储样式，必须由渲染逻辑利用正则表达式（忽略大小写）在运行时动态匹配目标单词，并根据当前义项的 theme_color 应用对应的颜色类名。
 *   **动效辅助**：
     *   **释义切换**：使用 `framer-motion` 实现 0.2s 的 `opacity` 和 `y` 偏移效果。
     *   **入场动画**：整个单词详情页入场时使用 `staggerChildren` 效果。
+
 
 ## 5. 技术实现对齐
 *   **渲染进程**：负责 Tab 切换逻辑、多语言排版及 `framer-motion` 动效。
